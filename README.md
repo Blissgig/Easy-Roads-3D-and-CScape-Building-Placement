@@ -8,11 +8,17 @@ Usage:
 2) Place the "BldgPlacement" script where ever you wish.  (Organize your project however you like)
 3) Add the "BldgPlacement" script anywhere you want. Personally I create a empty game object and attach the script to that.  Once you have the buildings set the way you wish, remove the script as it is not used at run-time
 4) The "BldgPlacement" script has two properites:
+  
   a) Building Tag
+  
   b) Road Tag
+  
   You will need to create two tags in your inspector, these are temporary tags that are only used while placing the buildings along the road.
+  
   Any buildings/roads not tagged will not be affected.   This allows you to change only the roads and buildings that you want, instead of All-or-Nothing.
   Once you create the tags, then tag the buildings and roads you wish to affect (easy right?) 
+  Make sure to untag your buildings and roads once they are in the positions you desire.
+  
 5) Press the "Place Buildings" button.   
 
 That's it.
