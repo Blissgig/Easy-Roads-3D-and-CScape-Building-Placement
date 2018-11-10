@@ -24,3 +24,5 @@ Usage:
 That's it.
 
 There are plans to have a couple of optional parameters that will allow various spacing between buildings as well as set the buildings back farther from the road.  At the moment I wanted to get this out for testing.
+
+Note: There is currently an issue at intersections, so you will likely have two buildings placed on top of each other at each corner.    I am currently thinking about a solution to this (Nov 10, 2018)
