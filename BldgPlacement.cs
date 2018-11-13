@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using EasyRoads3Dv3;
 using System.Linq;
@@ -10,6 +10,9 @@ public class BldgPlacement : MonoBehaviour
     //Tags are used so that the developer can control the which roads and buildings are affected by this process
     public string buildingTag = "";
     public string roadTag = "";
+    public float minBetweenBuildings = 0;
+    public float maxBetweenBuildings = 0;
+
 
     private List<GameObject> buildings;
     private const byte buildingSizeMultiplier = 3;  //CScape uses a 1 to 3 setting for their buildings, so this is to deal with that.
@@ -70,14 +73,15 @@ public class BldgPlacement : MonoBehaviour
         {
             //Process:
             //Get a building from the list, 
-            //Measure it's width
-            //get the current sidePoint's position and count points until the difference is greater than/equal to the width of the building.  If the end of the side markers is reached, don't place building
-            //get the angle based on the two points
-            //place the building at the center point of those two points
-            //Move the building back away from edge of sidewalk (Min/Max values in the editors
+            //Measure the building's width
+            //Get the current sidePoint's position and count points until the difference is greater than/equal to the width of the building.  If the end of the side markers is reached, don't place building
+            //Get the angle based on the two points
+            //Place the building at the center point of those two points
+            //Move the building back away from edge of sidewalk (Min/Max values in the editors)
+            //Optional: Allow space between buildings
+
 
             int currentMarker = 0;
-			
             bool isProcessing = true;
             bool isFound = false;       //Check if the building fits on this street-block
             float buildingDistance;
@@ -166,6 +170,34 @@ public class BldgPlacement : MonoBehaviour
                 {
                     isProcessing = false;
                 }
+
+                
+                //Optional: allow space between buildings
+                if (this.minBetweenBuildings > 0 && this.maxBetweenBuildings > 0)
+                {
+                    isFound = false;  //Reset
+                    float distanceBetweenBuildings = Random.Range(minBetweenBuildings, maxBetweenBuildings);
+                    Vector3 startPoint = markersSide[currentMarker];
+
+                    for (int i = (currentMarker + 1); i < markersSide.Length; i++)
+                    {
+                        Vector3 endPoint = markersSide[i];
+
+                        var buildingSeparation = Vector3.Distance(startPoint, endPoint);
+
+                        if (buildingSeparation >= distanceBetweenBuildings)
+                        {
+                            currentMarker = i;
+                            isFound = true;
+                            break;
+                        }
+                    }
+
+                    //In case we ran out of room for this side of the road, stop processing
+                    isProcessing = isFound;
+                }
+
+
 
             } while (isProcessing);
         }
