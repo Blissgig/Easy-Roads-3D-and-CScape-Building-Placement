@@ -135,7 +135,6 @@ public class BldgPlacement : MonoBehaviour
                         } while (isRoad);
 
                         //TODO: optional values to push the building back farther from the road
-                        //TODO: optional values to have space between buildings
 
                         //if there is an offset value, push the building back farther
                         if (offset > 0)
