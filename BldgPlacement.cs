@@ -12,6 +12,9 @@ public class BldgPlacement : MonoBehaviour
     public string roadTag = "";
     public float minBetweenBuildings = 0;
     public float maxBetweenBuildings = 0;
+    public float minBuildingBack = 0;
+    public float maxBuildingBack = 0;
+    public byte percentBuildingBack = 100; //This affects the min/maxBuildingBack so that only a percentage of these buildings are affected
 
 
     private List<GameObject> buildings;
@@ -27,6 +30,13 @@ public class BldgPlacement : MonoBehaviour
                 Debug.Log("You must have building and road tags set");
                 return;
             }
+
+            //To insure the percentage is never over 100
+            if (percentBuildingBack > 100)
+            {
+                percentBuildingBack = 100;
+            }
+
 
             //Use only tagged roads and buildings, that way if you have sections the way you want them, this code will not affect the untagged assets
             buildings = GameObject.FindGameObjectsWithTag(buildingTag).ToList();
@@ -46,7 +56,7 @@ public class BldgPlacement : MonoBehaviour
             foreach (ERRoad road in ERroads)
             {
                 roadName = road.GetName();
-                
+
                 //Make sure the road is in the tagged list
                 if (RoadInList(roads, roadName))
                 {
@@ -55,9 +65,9 @@ public class BldgPlacement : MonoBehaviour
                     Vector3[] markersCenter = road.GetSplinePointsCenter();
                     Vector3[] markersOffset = markersCenter;
                     
-                    PlaceBuildings(markersRight, markersCenter, true, roadName); 
+                    PlaceBuildings(markersRight, markersCenter, true, road); 
 
-                    PlaceBuildings(markersLeft, markersCenter, false, roadName); 
+                    PlaceBuildings(markersLeft, markersCenter, false, road); 
                 }
             }
         }
@@ -67,7 +77,7 @@ public class BldgPlacement : MonoBehaviour
         }
     }
 
-    private void PlaceBuildings(Vector3[] markersSide, Vector3[] markersCenter, bool rightSide, string roadName)
+    private void PlaceBuildings(Vector3[] markersSide, Vector3[] markersCenter, bool rightSide, ERRoad road)
     {
         try
         {
@@ -78,26 +88,27 @@ public class BldgPlacement : MonoBehaviour
             //Get the angle based on the two points
             //Place the building at the center point of those two points
             //Move the building back away from edge of sidewalk (Min/Max values in the editors)
+            //Optional: Move buildings back from road
             //Optional: Allow space between buildings
 
 
+            float offset = 0;
             int currentMarker = 0;
             bool isProcessing = true;
             bool isFound = false;       //Check if the building fits on this street-block
             float buildingDistance;
-            float offset = 0;
             const float increment = 0.2f;  //The value incremented back from the road.
 
             do
             {
-                isFound = false;  //reset
-
                 //If there are no buildings left, no need to prcess anything, obviously.
                 if (buildings.Count == 0)
                 {
                     isProcessing = false;
                     break;
                 }
+
+                isFound = false;  //reset
 
                 Vector3 startMarker = markersSide[currentMarker];
                 GameObject building = buildings[buildings.Count - 1];  //Get the last one, and build in reverse.  (allows removal from List without any issues)
@@ -122,7 +133,7 @@ public class BldgPlacement : MonoBehaviour
 
                         do
                         {
-                            isRoad = isInRoad(roadName, centerPoint);
+                            isRoad = isInRoad(road.GetName(), centerPoint);
 
                             //If this is on the road, then we need to move back a little bit until it's not touching the road
                             if (isRoad)
@@ -134,8 +145,24 @@ public class BldgPlacement : MonoBehaviour
 
                         } while (isRoad);
 
-                        //TODO: optional values to push the building back farther from the road
+                        //Optional: Push the building back farther from the road
+                        if (minBuildingBack > 0 || maxBuildingBack > 0)
+                        {
+                            var percent = Random.Range(1, 100);
 
+                            //This option allow a minimal amount of buildings to be moved back
+                            if (percent <= percentBuildingBack)
+                            {
+                                var offsetAddition = Random.Range(minBuildingBack, maxBuildingBack);
+                                if (offset == 0)
+                                {
+                                    offsetAddition += (road.GetWidth() * .1f);
+                                }
+                                offset += offsetAddition;
+                            }
+                        }
+
+                        
                         //if there is an offset value, push the building back farther
                         if (offset > 0)
                         {
@@ -171,7 +198,7 @@ public class BldgPlacement : MonoBehaviour
                 }
 
                 
-                //Optional: allow space between buildings
+                //Optional: Allow space between buildings
                 if (this.minBetweenBuildings > 0 && this.maxBetweenBuildings > 0)
                 {
                     isFound = false;  //Reset
@@ -195,9 +222,7 @@ public class BldgPlacement : MonoBehaviour
                     //In case we ran out of room for this side of the road, stop processing
                     isProcessing = isFound;
                 }
-
-
-
+                
             } while (isProcessing);
         }
         catch (System.Exception ex)
@@ -210,29 +235,22 @@ public class BldgPlacement : MonoBehaviour
     {
         bool isFound = false;
 
-        try
+        float radius = 0.1f;
+        Collider[] hitColliders = Physics.OverlapSphere(centerPoint, radius);
+
+
+        if (hitColliders.Length > 0)
         {
-            float radius = 0.1f;
-            Collider[] hitColliders = Physics.OverlapSphere(centerPoint, radius);
-
-
-            if (hitColliders.Length > 0)
+            for (int i = 0; i < hitColliders.Length; i++)
             {
-                for (int i = 0; i < hitColliders.Length; i++)
+                if (hitColliders[i].name.ToLower() == roadName.ToLower())
                 {
-                    if (hitColliders[i].name.ToLower() == roadName.ToLower())
-                    {
-                        isFound = true;
-                        break;
-                    }
+                    isFound = true;
+                    break;
                 }
             }
         }
-        catch (System.Exception ex)
-        {
-            HBCLogging.logException(ex);
-        }
-
+        
         return isFound;
     }
 
