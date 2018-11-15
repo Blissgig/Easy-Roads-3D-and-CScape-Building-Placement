@@ -23,6 +23,11 @@ Usage:
 
 That's it.
 
-There are plans to have a couple of optional parameters that will allow various spacing between buildings as well as set the buildings back farther from the road.  At the moment I wanted to get this out for testing.
+Options:
+* minBetweenBuildings/maxBetweenBuildings (float): These allow a random range to add space between buildings.
+* minBuildingBack/maxBuildingBack (float): These allow a random range to push the building back from the side of the street.
+* percentBuildingBack: This affects the min/maxBuildingBack so that only a given percentage of buildings are moved back.
 
-Note: There is currently an issue at intersections, so you will likely have two buildings placed on top of each other at each corner.    I am currently thinking about a solution to this (Nov 10, 2018)
+Notes: 
+* There is currently an issue at intersections, so you will likely have two buildings placed on top of each other at each corner.    I am currently thinking about a solution to this (Nov 10, 2018)
+* There is an odd situation in ref to moving buildings back.  Still working on this but wanted to include the code asap.
