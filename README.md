@@ -31,3 +31,4 @@ Options:
 Notes: 
 * There is currently an issue at intersections, so you will likely have two buildings placed on top of each other at each corner.    I am currently thinking about a solution to this (Nov 10, 2018)
 * There is an odd situation in ref to moving buildings back.  Still working on this but wanted to include the code asap.
+* After you have placed the buildings where you want, make sure to untag them so they are not moved at a later time.
